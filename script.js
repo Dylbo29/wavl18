@@ -15,6 +15,7 @@ const POSITION_LABELS = {
 };
 
 const POSITION_ORDER = ['S', 'PH', 'MB', 'OPP', 'L'];
+const CLUBS = [...new Set(players.map((player) => player.club))];
 
 const COACHES = {
   Reds: { club: 'Reds', name: 'Jon Uriarte', rank: 1 },
@@ -24,6 +25,18 @@ const COACHES = {
   'Northern Stars': { club: 'Northern Stars', name: 'Steve Petsos', rank: 5 },
   Rossmoyne: { club: 'Rossmoyne', name: 'Jordy Linton', rank: 6 },
   Apex: { club: 'Apex', name: 'Jheysson Rojas', rank: 7 }
+};
+
+const LEGENDARY_GAVIN = {
+  id: 999,
+  name: 'Gavin Lewis',
+  club: 'Chequers',
+  position: 'S',
+  overall: 100,
+  attack: 100,
+  defence: 100,
+  potential: 100,
+  isLegendary: true
 };
 
 const spinButton = document.getElementById('spinButton');
@@ -52,9 +65,10 @@ const team = {
 let draftQueue = [];
 let availablePlayers = [];
 let currentClub = null;
+let currentPosition = null;
 let isSpinning = false;
 let isDraftComplete = false;
-let rerollUsed = false;
+let positionRerollUsed = false;
 let spinLocked = false;
 let rerollButton = null;
 let progressValue = null;
@@ -64,6 +78,8 @@ let availableCoachByClub = {};
 let coachSelectionValue = null;
 let coachProjectionValue = null;
 let coachOverallValue = null;
+let legendaryAvailableThisSpin = false;
+let legendarySelected = false;
 
 function shuffleArray(items) {
   const copy = [...items];
@@ -74,13 +90,6 @@ function shuffleArray(items) {
   }
 
   return copy;
-}
-
-function buildDraftQueue() {
-  const clubs = [...new Set(players.map((player) => player.club))];
-  const rounds = Array.from({ length: 3 }, () => shuffleArray(clubs));
-
-  return rounds.flat();
 }
 
 function getPositionCount(position) {
@@ -352,12 +361,12 @@ function getComboEffects(roster) {
   let totalDelta = 0;
 
   const comboDefinitions = [
-    { label: 'Elite Core', ids: [1, 18, 43], delta: 8 },
-    { label: 'Balanced Star Crew', ids: [2, 19, 44], delta: 7 },
-    { label: 'Backcourt Anchor', ids: [3, 20, 45], delta: 6 },
-    { label: 'Disaster Unit', ids: [35, 60, 67, 78, 89], delta: -14 },
-    { label: 'Last-Place Mix', ids: [37, 62, 66, 80, 89], delta: -11 },
-    { label: 'Rough Around the Edges', ids: [39, 65, 77, 80, 89], delta: -9 }
+    { label: 'Elite Core', ids: [1, 18, 43], delta: 5 },
+    { label: 'Balanced Star Crew', ids: [2, 19, 44], delta: 4 },
+    { label: 'Backcourt Anchor', ids: [3, 20, 45], delta: 3 },
+    { label: 'Disaster Unit', ids: [35, 60, 67, 78, 89], delta: -18 },
+    { label: 'Last-Place Mix', ids: [37, 62, 66, 80, 89], delta: -15 },
+    { label: 'Rough Around the Edges', ids: [39, 65, 77, 80, 89], delta: -12 }
   ];
 
   comboDefinitions.forEach((combo) => {
@@ -372,73 +381,132 @@ function getComboEffects(roster) {
     ? roster.reduce((total, player) => total + (player.overall || 0), 0) / roster.length
     : 0;
 
-  if (averageOverall >= 95) {
-    totalDelta += 4;
-    triggered.push('High-end roster: +4');
-  } else if (averageOverall <= 80) {
-    totalDelta -= 10;
-    triggered.push('Low-end roster: -10');
+  if (averageOverall >= 96) {
+    totalDelta += 2;
+    triggered.push('High-end roster: +2');
+  } else if (averageOverall <= 83) {
+    totalDelta -= 14;
+    triggered.push('Low-end roster: -14');
   }
 
-  const weakCount = roster.filter((player) => (player.overall || 0) < 82).length;
-  if (weakCount >= 4) {
-    totalDelta -= 8;
-    triggered.push('Too many weak picks: -8');
+  const weakCount = roster.filter((player) => (player.overall || 0) < 84).length;
+  if (weakCount >= 3) {
+    const weakPenalty = weakCount * 3;
+    totalDelta -= weakPenalty;
+    triggered.push(`Too many weak picks: -${weakPenalty}`);
   }
 
   return { totalDelta, triggered };
 }
 
 function calculateTeamScore() {
+  const roster = getRosterPlayers();
   const weightedOverall = getWeightedOverall();
   const chemistryBonus = getChemistryBonus();
-  const comboEffects = getComboEffects(getRosterPlayers());
+  const comboEffects = getComboEffects(roster);
   const coachBonus = getCoachBonus();
-  return Number(Math.max(40, Math.min(115, weightedOverall + chemistryBonus + comboEffects.totalDelta + coachBonus)).toFixed(1));
+  const averageOverall = roster.length
+    ? roster.reduce((total, player) => total + (player.overall || 0), 0) / roster.length
+    : 0;
+  const eliteCount = roster.filter((player) => (player.overall || 0) >= 96).length;
+  const lowCount = roster.filter((player) => (player.overall || 0) <= 81).length;
+
+  let adjustedScore = weightedOverall + (chemistryBonus * 0.6) + comboEffects.totalDelta + coachBonus;
+  adjustedScore -= 12;
+
+  if (averageOverall >= 95) {
+    adjustedScore += 2;
+  }
+
+  if (averageOverall <= 86) {
+    adjustedScore -= 5;
+  }
+
+  if (averageOverall <= 82) {
+    adjustedScore -= 7;
+  }
+
+  if (eliteCount >= 4) {
+    adjustedScore += 1.5;
+  }
+
+  if (lowCount >= 2) {
+    adjustedScore -= lowCount * 2.5;
+  }
+
+  return Number(Math.max(30, Math.min(112, adjustedScore)).toFixed(1));
 }
 
 function getEvaluationBand(score) {
-  if (score >= 105) {
+  if (score >= 108) {
     return { record: '18–0', grade: 'S+', tier: 'Dynasty' };
   }
 
-  if (score >= 100) {
+  if (score >= 105) {
     return { record: '17–1', grade: 'S', tier: 'Championship Favourite' };
   }
 
-  if (score >= 96) {
+  if (score >= 103) {
     return { record: '16–2', grade: 'A+', tier: 'Elite' };
   }
 
-  if (score >= 92) {
+  if (score >= 99) {
     return { record: '15–3', grade: 'A', tier: 'Championship Contender' };
   }
 
-  if (score >= 88) {
+  if (score >= 95) {
     return { record: '14–4', grade: 'A-', tier: 'Strong Finals Team' };
   }
 
-  if (score >= 84) {
+  if (score >= 91) {
     return { record: '13–5', grade: 'B+', tier: 'Finals Team' };
   }
 
-  if (score >= 80) {
+  if (score >= 87) {
     return { record: '12–6', grade: 'B', tier: 'Playoff Team' };
   }
 
-  if (score >= 76) {
+  if (score >= 83) {
     return { record: '11–7', grade: 'B-', tier: 'Average' };
   }
 
-  if (score >= 72) {
+  if (score >= 79) {
     return { record: '10–8', grade: 'C+', tier: 'Developing' };
   }
 
-  if (score >= 68) {
+  if (score >= 75) {
     return { record: '9–9', grade: 'C', tier: 'Rebuilding' };
   }
 
-  if (score >= 60) {
+  if (score >= 71) {
+    return { record: '8–10', grade: 'C-', tier: 'Sliding' };
+  }
+
+  if (score >= 67) {
+    return { record: '7–11', grade: 'D+', tier: 'Struggling' };
+  }
+
+  if (score >= 63) {
+    return { record: '6–12', grade: 'D', tier: 'Rough Season' };
+  }
+
+  if (score >= 59) {
+    return { record: '5–13', grade: 'D-', tier: 'Bottom Four' };
+  }
+
+  if (score >= 55) {
+    return { record: '4–14', grade: 'F+', tier: 'Collapse Mode' };
+  }
+
+  if (score >= 51) {
+    return { record: '3–15', grade: 'F', tier: 'Collapse Mode' };
+  }
+
+  if (score >= 47) {
+    return { record: '2–16', grade: 'F', tier: 'Rebuild Required' };
+  }
+
+  if (score >= 43) {
     return { record: '1–17', grade: 'F+', tier: 'Rebuild Required' };
   }
 
@@ -475,6 +543,51 @@ function getStrengthsAndWeaknesses() {
 }
 
 function renderEvaluationScreen() {
+  if (legendarySelected) {
+    const roster = getRosterPlayers();
+    const teamSummaryLines = [
+      ...roster.map((player) => `${player.name} — ${POSITION_LABELS[player.position]}`),
+      teamCoach ? `${teamCoach.name} — Coach` : 'No coach drafted'
+    ];
+
+    const overlay = document.createElement('div');
+    overlay.className = 'popup-overlay';
+    overlay.innerHTML = `
+      <div class="popup-card" style="font-family:Segoe UI, Arial, sans-serif;">
+        <div style="font-size:0.95rem;letter-spacing:0.24em;text-transform:uppercase;color:#4fb0ff;margin-bottom:0.65rem;">TEAM COMPLETE</div>
+        <div style="font-size:1.2rem;font-weight:700;margin-bottom:0.95rem;">Season Results</div>
+
+        <div style="display:grid;gap:0.45rem;text-align:left;margin-bottom:0.9rem;">
+          <div style="display:flex;justify-content:space-between;gap:1rem;padding:0.55rem 0.7rem;border-bottom:1px solid rgba(255,255,255,0.08);">
+            <span style="color:#95a4b8;">Games Won</span>
+            <strong>20 / 20</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;gap:1rem;padding:0.55rem 0.7rem;border-bottom:1px solid rgba(255,255,255,0.08);">
+            <span style="color:#95a4b8;">Grade</span>
+            <strong>GOAT</strong>
+          </div>
+        </div>
+
+        <div style="text-align:left;margin-bottom:0.95rem;">
+          <div style="font-size:0.82rem;letter-spacing:0.2em;text-transform:uppercase;color:#4fb0ff;margin-bottom:0.45rem;">Your Team</div>
+          <div style="display:grid;gap:0.35rem;">
+            ${teamSummaryLines.map((line) => `<div style="padding:0.45rem 0.6rem;border-radius:10px;background:rgba(255,255,255,0.03);">${line}</div>`).join('')}
+          </div>
+        </div>
+
+        <div style="text-align:left;margin-bottom:0.95rem;padding:0.7rem 0.8rem;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);">
+          <div style="font-size:0.82rem;letter-spacing:0.2em;text-transform:uppercase;color:#4fb0ff;margin-bottom:0.35rem;">AI Season Summary</div>
+          <div style="line-height:1.45;">Gavin Lewis is the best player of all time, never served out, and he blocked Matt Pallot 25 times in the grand final. As usual, Gavin carried the team.</div>
+        </div>
+
+        <a class="play-again-btn" href="index.html" style="width:100%;max-width:100%;">PLAY AGAIN</a>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+    return;
+  }
+
   const score = calculateTeamScore();
   const band = getEvaluationBand(score);
   const roster = getRosterPlayers();
@@ -483,6 +596,40 @@ function renderEvaluationScreen() {
     teamCoach ? `${teamCoach.name} — Coach` : 'No coach drafted'
   ];
   const gamesWon = Number.parseInt(band.record.split('–')[0], 10) || 0;
+  const summaryOpener = [
+    'The season started like chaos and ended like a slightly organized volleyball miracle.',
+    'The analysts called this roster "questionable" in round one and "disturbingly effective" by finals.',
+    'At one point this looked like a social game lineup, then somehow it turned into a contender.'
+  ];
+  const summaryCloser = [
+    'Opponents spent most of the season trying to find your weak spot and mostly found floor burns instead.',
+    'The locker room chemistry swung between stand-up comedy and tactical genius, which weirdly worked.',
+    'The game plan was simple: survive long rallies, swing hard, and pretend every set point was planned.'
+  ];
+  const positiveContributionTemplates = [
+    '{name} turned broken plays into highlight reels and somehow made it look accidental.',
+    '{name} served like they had unresolved issues with the other side of the net.',
+    '{name} kept winning clutch points like they had already read the script.',
+    '{name} was so reliable teammates started setting them in warm-up conversations.'
+  ];
+  const negativeContributionTemplates = [
+    '{name} treated serve receive like a trust exercise and trust was not returned.',
+    '{name} attempted several heroic plays, most of which were heroic for the opposition.',
+    '{name} defended with heart, hustle, and occasionally the wrong part of the body.',
+    '{name} had great energy and questionable timing, a dangerous tactical combo.'
+  ];
+  const openingLine = summaryOpener[Math.floor(Math.random() * summaryOpener.length)];
+  const closingLine = summaryCloser[Math.floor(Math.random() * summaryCloser.length)];
+  const shuffledRoster = shuffleArray(roster);
+  const featuredPlayers = shuffledRoster.slice(0, Math.min(4, shuffledRoster.length));
+  const positiveChance = gamesWon >= 13 ? 0.85 : gamesWon >= 9 ? 0.55 : 0.2;
+  const contributionLines = featuredPlayers.map((player) => {
+    const isPositive = Math.random() < positiveChance;
+    const pool = isPositive ? positiveContributionTemplates : negativeContributionTemplates;
+    const template = pool[Math.floor(Math.random() * pool.length)];
+    return template.replace('{name}', player.name);
+  });
+  const aiSummary = `${openingLine} ${teamCoach ? `${teamCoach.name} kept everyone moving in one direction while yelling inspirational nonsense.` : 'The interim coach survived mostly on vibes and aggressive timeout gestures.'} ${contributionLines.join(' ')} ${closingLine}`;
 
   const overlay = document.createElement('div');
   overlay.className = 'popup-overlay';
@@ -509,6 +656,11 @@ function renderEvaluationScreen() {
         </div>
       </div>
 
+      <div style="text-align:left;margin-bottom:0.95rem;padding:0.7rem 0.8rem;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);">
+        <div style="font-size:0.82rem;letter-spacing:0.2em;text-transform:uppercase;color:#4fb0ff;margin-bottom:0.35rem;">AI Season Summary</div>
+        <div style="line-height:1.45;">${aiSummary}</div>
+      </div>
+
       <a class="play-again-btn" href="index.html" style="width:100%;max-width:100%;">PLAY AGAIN</a>
     </div>
   `;
@@ -525,13 +677,13 @@ function renderSpinButton() {
   }
 
   if (spinLocked) {
-    spinButton.innerHTML = '🔒 AUTO DRAFTING';
+    spinButton.innerHTML = '🔒 AUTO SPINNING';
     spinButton.classList.add('is-locked');
     spinButton.disabled = true;
     return;
   }
 
-  spinButton.innerHTML = '🎡 SPIN CLUB';
+  spinButton.innerHTML = '🎡 SPIN TEAM + POSITION';
   spinButton.classList.remove('is-complete');
   spinButton.classList.remove('is-locked');
   spinButton.disabled = false;
@@ -548,15 +700,43 @@ function getAvailablePlayersForClub(club) {
     .sort((left, right) => left.name.localeCompare(right.name));
 }
 
+function getAvailablePositionsForClub(club) {
+  return POSITION_ORDER.filter((position) => (
+    availablePlayers.some((player) => player.club === club && player.position === position && canSelectPlayer(player))
+  ));
+}
+
+function getEligibleClubsForSpin() {
+  return CLUBS.filter((club) => {
+    const hasCoachOption = !teamCoach && Boolean(availableCoachByClub[club]);
+    const hasPlayerOption = getAvailablePositionsForClub(club).length > 0;
+    return hasCoachOption || hasPlayerOption;
+  });
+}
+
+function getClubHeading() {
+  if (!currentClub) {
+    return 'Press Spin';
+  }
+
+  if (currentPosition) {
+    return `${currentClub} • ${POSITION_LABELS[currentPosition]}`;
+  }
+
+  return `${currentClub} • Coach Window`;
+}
+
 function renderPlayersForClub() {
   playerContainer.innerHTML = '';
 
   if (!currentClub) {
-    playerContainer.innerHTML = '<p class="draft-tip">Press SPIN CLUB to reveal a club.</p>';
+    playerContainer.innerHTML = '<p class="draft-tip">Press SPIN TEAM + POSITION to reveal your next option.</p>';
     return;
   }
 
-  const clubPlayers = getAvailablePlayersForClub(currentClub);
+  const clubPlayers = currentPosition
+    ? getAvailablePlayersForClub(currentClub).filter((player) => player.position === currentPosition)
+    : [];
   const clubCoach = teamCoach ? null : (availableCoachByClub[currentClub] || null);
 
   if (!clubPlayers.length && !clubCoach) {
@@ -610,6 +790,25 @@ function renderPlayersForClub() {
     fragment.appendChild(coachCard);
   }
 
+  if (legendaryAvailableThisSpin) {
+    const legendaryCard = document.createElement('article');
+    legendaryCard.className = 'player-card coach-card';
+
+    const legendaryButton = document.createElement('button');
+    legendaryButton.type = 'button';
+    legendaryButton.className = 'player-select-button';
+    legendaryButton.innerHTML = `
+      <h3>Gavin Lewis</h3>
+      <p>Legendary Setter • Chequers</p>
+      <p>1% Spawn</p>
+    `;
+
+    legendaryButton.addEventListener('click', handleLegendarySelection);
+    legendaryCard.appendChild(legendaryButton);
+    legendaryCard.classList.add(getDelayClass(clubPlayers.length + (clubCoach ? 1 : 0)));
+    fragment.appendChild(legendaryCard);
+  }
+
   playerContainer.appendChild(fragment);
 
   requestAnimationFrame(() => {
@@ -659,7 +858,19 @@ function clearSpinTimer() {
 function finishClubSpin(chosenClub) {
   isSpinning = false;
   currentClub = chosenClub;
-  clubName.textContent = chosenClub;
+  legendaryAvailableThisSpin = false;
+
+  if (chosenClub === 'Chequers' && !legendarySelected && !isPositionFull('S') && Math.random() < 0.01) {
+    currentPosition = 'S';
+    legendaryAvailableThisSpin = true;
+  } else {
+    const positionOptions = getAvailablePositionsForClub(chosenClub);
+    currentPosition = positionOptions.length
+      ? positionOptions[Math.floor(Math.random() * positionOptions.length)]
+      : null;
+  }
+
+  clubName.textContent = getClubHeading();
   animateClubReveal();
   updateStatusPanels();
   renderPlayersForClub();
@@ -670,27 +881,19 @@ function startClubSpin() {
     return;
   }
 
-  if (!draftQueue.length) {
-    if (!teamCoach) {
-      const coachClubs = Object.keys(availableCoachByClub).filter((club) => Boolean(availableCoachByClub[club]));
-      if (coachClubs.length) {
-        draftQueue = shuffleArray(coachClubs);
-      }
-    }
-
-    if (!draftQueue.length) {
-      isDraftComplete = true;
-      currentClub = null;
-      clubName.textContent = 'Draft Complete';
-      animateClubReveal();
-      playerContainer.innerHTML = '<p class="draft-tip">No clubs remain.</p>';
-      updateStatusPanels();
-      return;
-    }
+  const eligibleClubs = getEligibleClubsForSpin();
+  if (!eligibleClubs.length) {
+    isDraftComplete = true;
+    currentClub = null;
+    currentPosition = null;
+    clubName.textContent = 'Draft Complete';
+    animateClubReveal();
+    playerContainer.innerHTML = '<p class="draft-tip">No clubs remain.</p>';
+    updateStatusPanels();
+    return;
   }
 
-  const chosenClub = draftQueue.shift();
-  const clubNames = [...new Set(players.map((player) => player.club))];
+  const chosenClub = eligibleClubs[Math.floor(Math.random() * eligibleClubs.length)];
   const startTime = performance.now();
   const duration = 1800;
 
@@ -701,7 +904,7 @@ function startClubSpin() {
   const tick = (now) => {
     const elapsed = now - startTime;
     const progress = Math.min(elapsed / duration, 1);
-    clubName.textContent = clubNames[Math.floor(Math.random() * clubNames.length)];
+    clubName.textContent = CLUBS[Math.floor(Math.random() * CLUBS.length)];
     animateClubReveal();
 
     if (progress < 1) {
@@ -723,7 +926,9 @@ function advanceToNextClub() {
   }
 
   currentClub = null;
-  playerContainer.innerHTML = '<p class="draft-tip">Rolling the next club...</p>';
+  currentPosition = null;
+  legendaryAvailableThisSpin = false;
+  playerContainer.innerHTML = '<p class="draft-tip">Rolling the next team and position...</p>';
   window.setTimeout(() => {
     startClubSpin();
   }, 300);
@@ -734,9 +939,9 @@ function updateRerollButton() {
     return;
   }
 
-  const canUseReroll = !rerollUsed && Boolean(currentClub) && !isSpinning && !isDraftComplete && !isTeamComplete();
+  const canUseReroll = !positionRerollUsed && Boolean(currentClub) && !isSpinning && !isDraftComplete && !isTeamComplete();
   rerollButton.disabled = !canUseReroll;
-  rerollButton.textContent = rerollUsed ? '🔄 REROLL USED' : '🔄 REROLL (1 LEFT)';
+  rerollButton.textContent = positionRerollUsed ? '🔄 POSITION REROLL USED' : '🔄 REROLL POSITION (1 LEFT)';
 }
 
 function handlePlayerSelection(player) {
@@ -747,6 +952,8 @@ function handlePlayerSelection(player) {
   availablePlayers = availablePlayers.filter((availablePlayer) => availablePlayer.id !== player.id);
   assignPlayerToTeam(player);
   currentClub = null;
+  currentPosition = null;
+  legendaryAvailableThisSpin = false;
   renderCourtSlots();
   updateStatusPanels();
   renderPlayersForClub();
@@ -772,12 +979,38 @@ function handleCoachSelection(coach) {
   teamCoach = coach;
   availableCoachByClub[coach.club] = null;
   currentClub = null;
+  currentPosition = null;
+  legendaryAvailableThisSpin = false;
   updateStatusPanels();
   renderPlayersForClub();
 
   if (isTeamComplete()) {
     isDraftComplete = true;
     clubName.textContent = 'Team Evaluation';
+    animateClubReveal();
+    renderEvaluationScreen();
+    return;
+  }
+
+  window.setTimeout(() => {
+    advanceToNextClub();
+  }, 250);
+}
+
+function handleLegendarySelection() {
+  team.S = { ...LEGENDARY_GAVIN };
+  legendarySelected = true;
+  legendaryAvailableThisSpin = false;
+  currentClub = null;
+  currentPosition = null;
+  clubName.textContent = 'Legendary Pick Locked';
+  animateClubReveal();
+  updateStatusPanels();
+  renderPlayersForClub();
+
+  if (isTeamComplete()) {
+    isDraftComplete = true;
+    clubName.textContent = 'Legendary Season';
     animateClubReveal();
     renderEvaluationScreen();
     return;
@@ -818,23 +1051,31 @@ function handleSpinButtonClick() {
 }
 
 function handleRerollClick() {
-  if (rerollUsed || !currentClub || isSpinning || isDraftComplete || isTeamComplete()) {
+  if (positionRerollUsed || !currentClub || isSpinning || isDraftComplete || isTeamComplete()) {
     return;
   }
 
-  rerollUsed = true;
-  currentClub = null;
-  playerContainer.innerHTML = '<p class="draft-tip">Skipping this club...</p>';
+  const availablePositions = getAvailablePositionsForClub(currentClub);
+  if (!availablePositions.length) {
+    return;
+  }
+
+  positionRerollUsed = true;
+  const alternatives = availablePositions.filter((position) => position !== currentPosition);
+  const nextPositionPool = alternatives.length ? alternatives : availablePositions;
+  currentPosition = nextPositionPool[Math.floor(Math.random() * nextPositionPool.length)];
+  clubName.textContent = getClubHeading();
+  animateClubReveal();
+  playerContainer.innerHTML = '<p class="draft-tip">Rerolling position...</p>';
   updateRerollButton();
 
   window.setTimeout(() => {
-    startClubSpin();
+    renderPlayersForClub();
   }, 250);
 }
 
 spinButton.addEventListener('click', handleSpinButtonClick);
 
-draftQueue = buildDraftQueue();
 availablePlayers = players.map((player) => ({ ...player }));
 availableCoachByClub = Object.fromEntries(
   Object.entries(COACHES).map(([club, coach]) => [club, { ...coach }])
@@ -852,7 +1093,7 @@ rerollButton = document.createElement('button');
 rerollButton.type = 'button';
 rerollButton.id = 'rerollButton';
 rerollButton.className = 'reroll-button';
-rerollButton.textContent = '🔄 REROLL (1 LEFT)';
+rerollButton.textContent = '🔄 REROLL POSITION (1 LEFT)';
 rerollButton.addEventListener('click', handleRerollClick);
 spinButton.parentElement.insertBefore(rerollButton, spinButton);
 

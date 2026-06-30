@@ -52,17 +52,6 @@ const players = [
         name: "Kable Monck",
         club: "Rossmoyne",
         position: "S",
-        overall: 95,
-        attack: 81,
-        defence: 90,
-        potential: 94
-    },
-
-    {
-        id: 6,
-        name: "Zach Santamaria",
-        club: "Southern Cross",
-        position: "S",
         overall: 94,
         attack: 80,
         defence: 89,
@@ -70,14 +59,25 @@ const players = [
     },
 
     {
+        id: 6,
+        name: "Zach Santamaria",
+        club: "Southern Cross",
+        position: "S",
+        overall: 93,
+        attack: 79,
+        defence: 88,
+        potential: 92
+    },
+
+    {
         id: 7,
         name: "Ben Fourie",
         club: "Northern Stars",
         position: "S",
-        overall: 93,
-        attack: 80,
-        defence: 88,
-        potential: 92
+        overall: 92,
+        attack: 79,
+        defence: 87,
+        potential: 91
     },
 
     {
@@ -85,27 +85,16 @@ const players = [
         name: "Sean Kennedy",
         club: "Southern Cross",
         position: "S",
-        overall: 92,
-        attack: 79,
-        defence: 88,
-        potential: 91
+        overall: 91,
+        attack: 78,
+        defence: 87,
+        potential: 90
     },
 
     {
         id: 9,
         name: "Kaleb Boyle",
         club: "Rossmoyne",
-        position: "S",
-        overall: 91,
-        attack: 79,
-        defence: 87,
-        potential: 90
-    },
-
-    {
-        id: 10,
-        name: "Kaan Ozdemir",
-        club: "Reds",
         position: "S",
         overall: 90,
         attack: 78,
@@ -114,14 +103,25 @@ const players = [
     },
 
     {
+        id: 10,
+        name: "Kaan Ozdemir",
+        club: "Reds",
+        position: "S",
+        overall: 87,
+        attack: 75,
+        defence: 83,
+        potential: 86
+    },
+
+    {
         id: 11,
         name: "Declan Munt",
         club: "Balcatta",
         position: "S",
-        overall: 89,
-        attack: 77,
-        defence: 85,
-        potential: 88
+        overall: 86,
+        attack: 74,
+        defence: 82,
+        potential: 85
     },
 
     {
@@ -129,10 +129,10 @@ const players = [
         name: "Kieran Manason",
         club: "Balcatta",
         position: "S",
-        overall: 88,
-        attack: 77,
-        defence: 84,
-        potential: 87
+        overall: 85,
+        attack: 74,
+        defence: 81,
+        potential: 84
     },
 
     {
@@ -140,10 +140,10 @@ const players = [
         name: "Samuel Ho",
         club: "Reds",
         position: "S",
-        overall: 87,
-        attack: 76,
-        defence: 84,
-        potential: 86
+        overall: 84,
+        attack: 73,
+        defence: 81,
+        potential: 83
     },
 
     {
@@ -151,10 +151,10 @@ const players = [
         name: "Jonathan Hague",
         club: "Northern Stars",
         position: "S",
-        overall: 86,
-        attack: 76,
-        defence: 83,
-        potential: 85
+        overall: 83,
+        attack: 73,
+        defence: 80,
+        potential: 82
     },
 
     {
@@ -162,10 +162,10 @@ const players = [
         name: "Dylan Fissioli",
         club: "Northern Stars",
         position: "S",
-        overall: 85,
-        attack: 75,
-        defence: 82,
-        potential: 84
+        overall: 80,
+        attack: 70,
+        defence: 77,
+        potential: 79
     },
 
     {
@@ -173,10 +173,10 @@ const players = [
         name: "Ho Fung Chong",
         club: "Apex",
         position: "S",
-        overall: 84,
-        attack: 75,
-        defence: 81,
-        potential: 83
+        overall: 79,
+        attack: 70,
+        defence: 76,
+        potential: 78
     },
 
     {
@@ -184,10 +184,32 @@ const players = [
         name: "Matthew Costa",
         club: "Apex",
         position: "S",
-        overall: 83,
+        overall: 78,
+        attack: 69,
+        defence: 75,
+        potential: 77
+    },
+
+    {
+        id: 90,
+        name: "Thomas Park",
+        club: "Northern Stars",
+        position: "S",
+        overall: 90,
         attack: 74,
-        defence: 80,
-        potential: 82
+        defence: 86,
+        potential: 90
+    },
+
+    {
+        id: 94,
+        name: "Tristan Watts",
+        club: "Chequers",
+        position: "S",
+        overall: 80,
+        attack: 80,
+        defence: 72,
+        potential: 80
     },     // =========================
     // PIN HITTERS
     // =========================
@@ -241,27 +263,16 @@ const players = [
         name: "Daniel Piggott",
         club: "Southern Cross",
         position: "PH",
-        overall: 95,
-        attack: 95,
-        defence: 88,
-        potential: 93
+        overall: 94,
+        attack: 94,
+        defence: 87,
+        potential: 92
     },
 
     {
         id: 23,
         name: "Ryan Smith",
         club: "Rossmoyne",
-        position: "PH",
-        overall: 94,
-        attack: 94,
-        defence: 88,
-        potential: 92
-    },
-
-    {
-        id: 24,
-        name: "Nikita Marchenkov",
-        club: "Balcatta",
         position: "PH",
         overall: 93,
         attack: 93,
@@ -270,20 +281,20 @@ const players = [
     },
 
     {
-        id: 25,
-        name: "Simon Durack",
+        id: 24,
+        name: "Nikita Marchenkov",
         club: "Balcatta",
         position: "PH",
         overall: 92,
         attack: 92,
-        defence: 87,
+        defence: 86,
         potential: 90
     },
 
     {
-        id: 26,
-        name: "Matt Reaves",
-        club: "Northern Stars",
+        id: 25,
+        name: "Simon Durack",
+        club: "Balcatta",
         position: "PH",
         overall: 91,
         attack: 91,
@@ -292,14 +303,25 @@ const players = [
     },
 
     {
+        id: 26,
+        name: "Matt Reaves",
+        club: "Northern Stars",
+        position: "PH",
+        overall: 90,
+        attack: 90,
+        defence: 85,
+        potential: 88
+    },
+
+    {
         id: 27,
         name: "Harrison Buhler",
         club: "Southern Cross",
         position: "PH",
-        overall: 90,
-        attack: 90,
-        defence: 86,
-        potential: 88
+        overall: 87,
+        attack: 87,
+        defence: 83,
+        potential: 85
     },
 
     {
@@ -307,10 +329,10 @@ const players = [
         name: "Alex Neindorf",
         club: "Chequers",
         position: "PH",
-        overall: 89,
-        attack: 89,
-        defence: 85,
-        potential: 87
+        overall: 86,
+        attack: 86,
+        defence: 82,
+        potential: 84
     },
 
     {
@@ -318,10 +340,10 @@ const players = [
         name: "Dylan Bauer",
         club: "Rossmoyne",
         position: "PH",
-        overall: 88,
-        attack: 88,
-        defence: 84,
-        potential: 86
+        overall: 85,
+        attack: 85,
+        defence: 81,
+        potential: 83
     },
 
     {
@@ -329,26 +351,28 @@ const players = [
         name: "Jonathan Hunt",
         club: "Balcatta",
         position: "PH",
-        overall: 87,
-        attack: 87,
-        defence: 84,
-        potential: 85
+        overall: 84,
+        attack: 84,
+        defence: 81,
+        potential: 82
     },
 
     // Unranked Pin Hitters
 
-    { id:31, name:"Angus Flower", club:"Reds", position:"PH", overall:82, attack:82, defence:80, potential:82 },
-    { id:32, name:"Ben Abbott", club:"Reds", position:"PH", overall:82, attack:82, defence:80, potential:82 },
-    { id:33, name:"Chi Kin Wong", club:"Apex", position:"PH", overall:81, attack:81, defence:79, potential:81 },
-    { id:34, name:"Henry Zhang", club:"Apex", position:"PH", overall:81, attack:81, defence:79, potential:81 },
-    { id:35, name:"Jack London", club:"Reds", position:"PH", overall:81, attack:81, defence:79, potential:81 },
-    { id:36, name:"Kye McLaren", club:"Balcatta", position:"PH", overall:80, attack:80, defence:78, potential:80 },
-    { id:37, name:"Liam Ryan", club:"Northern Stars", position:"PH", overall:80, attack:80, defence:78, potential:80 },
-    { id:38, name:"Rhylee Hand", club:"Apex", position:"PH", overall:80, attack:80, defence:78, potential:80 },
-    { id:39, name:"Thomas Durand", club:"Apex", position:"PH", overall:79, attack:79, defence:77, potential:79 },
-    { id:40, name:"Cale Lance", club:"Chequers", position:"PH", overall:79, attack:79, defence:77, potential:79 },
-    { id:41, name:"Rielly Vincent", club:"Reds", position:"PH", overall:79, attack:79, defence:77, potential:79 },
-    { id:42, name:"Ehizele Ogwu", club:"Reds", position:"PH", overall:79, attack:79, defence:77, potential:79 },     // =========================
+    { id:31, name:"Angus Flower", club:"Reds", position:"PH", overall:77, attack:77, defence:75, potential:77 },
+    { id:32, name:"Ben Abbott", club:"Reds", position:"PH", overall:77, attack:77, defence:75, potential:77 },
+    { id:33, name:"Chi Kin Wong", club:"Apex", position:"PH", overall:76, attack:76, defence:74, potential:76 },
+    { id:34, name:"Henry Zhang", club:"Apex", position:"PH", overall:76, attack:76, defence:74, potential:76 },
+    { id:35, name:"Jack London", club:"Reds", position:"PH", overall:76, attack:76, defence:74, potential:76 },
+    { id:36, name:"Kye McLaren", club:"Balcatta", position:"PH", overall:72, attack:72, defence:70, potential:72 },
+    { id:37, name:"Liam Ryan", club:"Northern Stars", position:"PH", overall:72, attack:72, defence:70, potential:72 },
+    { id:38, name:"Rhylee Hand", club:"Apex", position:"PH", overall:72, attack:72, defence:70, potential:72 },
+    { id:39, name:"Thomas Durand", club:"Apex", position:"PH", overall:71, attack:71, defence:69, potential:71 },
+    { id:40, name:"Cale Lance", club:"Chequers", position:"PH", overall:71, attack:71, defence:69, potential:71 },
+    { id:41, name:"Rielly Vincent", club:"Reds", position:"PH", overall:71, attack:71, defence:69, potential:71 },
+    { id:42, name:"Ehizele Ogwu", club:"Reds", position:"PH", overall:71, attack:71, defence:69, potential:71 },     // =========================
+    { id:91, name:"Kable Monck", club:"Rossmoyne", position:"PH", overall:75, attack:75, defence:68, potential:75 },
+    { id:92, name:"Thomas Park", club:"Northern Stars", position:"PH", overall:60, attack:60, defence:54, potential:60 },     // =========================
     // MIDDLE BLOCKERS
     // =========================
 
@@ -401,17 +425,6 @@ const players = [
         name:"Henry Marsh",
         club:"Southern Cross",
         position:"MB",
-        overall:95,
-        attack:92,
-        defence:95,
-        potential:93
-    },
-
-    {
-        id:48,
-        name:"Jacob Allison",
-        club:"Southern Cross",
-        position:"MB",
         overall:94,
         attack:91,
         defence:94,
@@ -419,9 +432,9 @@ const players = [
     },
 
     {
-        id:49,
-        name:"Jake Harburn",
-        club:"Rossmoyne",
+        id:48,
+        name:"Jacob Allison",
+        club:"Southern Cross",
         position:"MB",
         overall:93,
         attack:90,
@@ -430,9 +443,9 @@ const players = [
     },
 
     {
-        id:50,
-        name:"Declan Walsh",
-        club:"Southern Cross",
+        id:49,
+        name:"Jake Harburn",
+        club:"Rossmoyne",
         position:"MB",
         overall:92,
         attack:89,
@@ -441,9 +454,9 @@ const players = [
     },
 
     {
-        id:51,
-        name:"Kieran Mullee",
-        club:"Northern Stars",
+        id:50,
+        name:"Declan Walsh",
+        club:"Southern Cross",
         position:"MB",
         overall:91,
         attack:88,
@@ -452,9 +465,9 @@ const players = [
     },
 
     {
-        id:52,
-        name:"John Mark Joshua Castillo",
-        club:"Apex",
+        id:51,
+        name:"Kieran Mullee",
+        club:"Northern Stars",
         position:"MB",
         overall:90,
         attack:87,
@@ -463,31 +476,9 @@ const players = [
     },
 
     {
-        id:53,
-        name:"Joshua Monnaie",
-        club:"Rossmoyne",
-        position:"MB",
-        overall:89,
-        attack:86,
-        defence:89,
-        potential:87
-    },
-
-    {
-        id:54,
-        name:"Edan Cristinelli",
-        club:"Northern Stars",
-        position:"MB",
-        overall:88,
-        attack:85,
-        defence:88,
-        potential:86
-    },
-
-    {
-        id:55,
-        name:"Benjamin Ramsay",
-        club:"Balcatta",
+        id:52,
+        name:"John Mark Joshua Castillo",
+        club:"Apex",
         position:"MB",
         overall:87,
         attack:84,
@@ -496,9 +487,9 @@ const players = [
     },
 
     {
-        id:56,
-        name:"Ethan Harriduth",
-        club:"Chequers",
+        id:53,
+        name:"Joshua Monnaie",
+        club:"Rossmoyne",
         position:"MB",
         overall:86,
         attack:83,
@@ -507,9 +498,9 @@ const players = [
     },
 
     {
-        id:57,
-        name:"Made Chidgey",
-        club:"Chequers",
+        id:54,
+        name:"Edan Cristinelli",
+        club:"Northern Stars",
         position:"MB",
         overall:85,
         attack:82,
@@ -518,9 +509,9 @@ const players = [
     },
 
     {
-        id:58,
-        name:"Callum Nicol",
-        club:"Northern Stars",
+        id:55,
+        name:"Benjamin Ramsay",
+        club:"Balcatta",
         position:"MB",
         overall:84,
         attack:81,
@@ -529,9 +520,9 @@ const players = [
     },
 
     {
-        id:59,
-        name:"Andrew Belcher",
-        club:"Apex",
+        id:56,
+        name:"Ethan Harriduth",
+        club:"Chequers",
         position:"MB",
         overall:83,
         attack:80,
@@ -540,30 +531,8 @@ const players = [
     },
 
     {
-        id:60,
-        name:"Heinrich Haan",
-        club:"Northern Stars",
-        position:"MB",
-        overall:82,
-        attack:79,
-        defence:82,
-        potential:80
-    },
-
-    {
-        id:61,
-        name:"Saurav Bisnoi",
-        club:"Apex",
-        position:"MB",
-        overall:81,
-        attack:78,
-        defence:81,
-        potential:79
-    },
-
-    {
-        id:62,
-        name:"Lachlan Holmes",
+        id:57,
+        name:"Made Chidgey",
         club:"Chequers",
         position:"MB",
         overall:80,
@@ -573,9 +542,9 @@ const players = [
     },
 
     {
-        id:63,
-        name:"Spencer Teo",
-        club:"Rossmoyne",
+        id:58,
+        name:"Callum Nicol",
+        club:"Northern Stars",
         position:"MB",
         overall:79,
         attack:76,
@@ -584,9 +553,9 @@ const players = [
     },
 
     {
-        id:64,
-        name:"Marcus Lin",
-        club:"Southern Cross",
+        id:59,
+        name:"Andrew Belcher",
+        club:"Apex",
         position:"MB",
         overall:78,
         attack:75,
@@ -595,9 +564,9 @@ const players = [
     },
 
     {
-        id:65,
-        name:"Jaxon Neill",
-        club:"Reds",
+        id:60,
+        name:"Heinrich Haan",
+        club:"Northern Stars",
         position:"MB",
         overall:77,
         attack:74,
@@ -606,9 +575,9 @@ const players = [
     },
 
     {
-        id:66,
-        name:"Harry Hornby",
-        club:"Rossmoyne",
+        id:61,
+        name:"Saurav Bisnoi",
+        club:"Apex",
         position:"MB",
         overall:76,
         attack:73,
@@ -617,14 +586,69 @@ const players = [
     },
 
     {
+        id:62,
+        name:"Lachlan Holmes",
+        club:"Chequers",
+        position:"MB",
+        overall:72,
+        attack:69,
+        defence:72,
+        potential:70
+    },
+
+    {
+        id:63,
+        name:"Spencer Teo",
+        club:"Rossmoyne",
+        position:"MB",
+        overall:71,
+        attack:68,
+        defence:71,
+        potential:69
+    },
+
+    {
+        id:64,
+        name:"Marcus Lin",
+        club:"Southern Cross",
+        position:"MB",
+        overall:70,
+        attack:67,
+        defence:70,
+        potential:68
+    },
+
+    {
+        id:65,
+        name:"Jaxon Neill",
+        club:"Reds",
+        position:"MB",
+        overall:69,
+        attack:66,
+        defence:69,
+        potential:67
+    },
+
+    {
+        id:66,
+        name:"Harry Hornby",
+        club:"Rossmoyne",
+        position:"MB",
+        overall:68,
+        attack:65,
+        defence:68,
+        potential:66
+    },
+
+    {
         id:67,
         name:"Baxter Notting",
         club:"Northern Stars",
         position:"MB",
-        overall:75,
-        attack:72,
-        defence:75,
-        potential:73
+        overall:67,
+        attack:64,
+        defence:67,
+        potential:65
     },     // =========================
     // OPPOSITES
     // =========================
@@ -678,17 +702,6 @@ const players = [
         name:"Andrew Clayton",
         club:"Balcatta",
         position:"OPP",
-        overall:95,
-        attack:95,
-        defence:79,
-        potential:93
-    },
-
-    {
-        id:73,
-        name:"Casey Gonzales",
-        club:"Apex",
-        position:"OPP",
         overall:94,
         attack:94,
         defence:78,
@@ -696,9 +709,9 @@ const players = [
     },
 
     {
-        id:74,
-        name:"Bryce Poland",
-        club:"Chequers",
+        id:73,
+        name:"Casey Gonzales",
+        club:"Apex",
         position:"OPP",
         overall:93,
         attack:93,
@@ -707,20 +720,20 @@ const players = [
     },
 
     {
-        id:75,
-        name:"Gurmanpreet Singh",
+        id:74,
+        name:"Bryce Poland",
         club:"Chequers",
         position:"OPP",
         overall:92,
         attack:92,
-        defence:77,
+        defence:76,
         potential:90
     },
 
     {
-        id:76,
-        name:"Lucas Priest",
-        club:"Rossmoyne",
+        id:75,
+        name:"Gurmanpreet Singh",
+        club:"Chequers",
         position:"OPP",
         overall:91,
         attack:91,
@@ -729,14 +742,25 @@ const players = [
     },
 
     {
+        id:76,
+        name:"Lucas Priest",
+        club:"Rossmoyne",
+        position:"OPP",
+        overall:90,
+        attack:90,
+        defence:75,
+        potential:88
+    },
+
+    {
         id:77,
         name:"Jakob Hawkes",
         club:"Reds",
         position:"OPP",
-        overall:84,
-        attack:84,
-        defence:72,
-        potential:84
+        overall:79,
+        attack:79,
+        defence:67,
+        potential:79
     },
 
     {
@@ -744,10 +768,10 @@ const players = [
         name:"Oscar Knight",
         club:"Reds",
         position:"OPP",
-        overall:83,
-        attack:83,
-        defence:71,
-        potential:83
+        overall:78,
+        attack:78,
+        defence:66,
+        potential:78
     },
 
     {
@@ -755,10 +779,10 @@ const players = [
         name:"Dustin Kendall",
         club:"Northern Stars",
         position:"OPP",
-        overall:82,
-        attack:82,
-        defence:70,
-        potential:82
+        overall:77,
+        attack:77,
+        defence:65,
+        potential:77
     },
 
     {
@@ -766,10 +790,21 @@ const players = [
         name:"Callum Huppatz",
         club:"Balcatta",
         position:"OPP",
-        overall:81,
-        attack:81,
-        defence:69,
-        potential:81
+        overall:76,
+        attack:76,
+        defence:64,
+        potential:76
+    },
+
+    {
+        id:93,
+        name:"Jose Manuel Martinez Rebollar",
+        club:"Chequers",
+        position:"OPP",
+        overall:80,
+        attack:82,
+        defence:74,
+        potential:80
     },     // =========================
     // LIBEROS
     // =========================
@@ -823,17 +858,6 @@ const players = [
         name:"Maksim Bacovic",
         club:"Balcatta",
         position:"L",
-        overall:95,
-        attack:69,
-        defence:95,
-        potential:93
-    },
-
-    {
-        id:86,
-        name:"Matthew Waddington",
-        club:"Rossmoyne",
-        position:"L",
         overall:94,
         attack:68,
         defence:94,
@@ -841,20 +865,20 @@ const players = [
     },
 
     {
-        id:87,
-        name:"Samuel Hoskin",
+        id:86,
+        name:"Matthew Waddington",
         club:"Rossmoyne",
         position:"L",
         overall:93,
-        attack:68,
+        attack:67,
         defence:93,
         potential:91
     },
 
     {
-        id:88,
-        name:"Meli Naborisi",
-        club:"Apex",
+        id:87,
+        name:"Samuel Hoskin",
+        club:"Rossmoyne",
         position:"L",
         overall:92,
         attack:67,
@@ -863,14 +887,25 @@ const players = [
     },
 
     {
+        id:88,
+        name:"Meli Naborisi",
+        club:"Apex",
+        position:"L",
+        overall:91,
+        attack:66,
+        defence:91,
+        potential:89
+    },
+
+    {
         id:89,
         name:"Hudson Spooner",
         club:"Northern Stars",
         position:"L",
-        overall:91,
-        attack:67,
-        defence:91,
-        potential:89
+        overall:90,
+        attack:66,
+        defence:90,
+        potential:88
     }
 
 ];
