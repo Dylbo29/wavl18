@@ -414,9 +414,9 @@ const players = [
         name:"Jordan Fancote",
         club:"Reds",
         position:"MB",
-        overall:96,
-        attack:93,
-        defence:96,
+        overall:89,
+        attack:90,
+        defence:51,
         potential:94
     },
 

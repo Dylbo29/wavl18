@@ -683,7 +683,7 @@ function renderSpinButton() {
     return;
   }
 
-  spinButton.innerHTML = '🎡 SPIN TEAM + POSITION';
+  spinButton.innerHTML = '🎡 SPIN TEAM';
   spinButton.classList.remove('is-complete');
   spinButton.classList.remove('is-locked');
   spinButton.disabled = false;
@@ -700,43 +700,23 @@ function getAvailablePlayersForClub(club) {
     .sort((left, right) => left.name.localeCompare(right.name));
 }
 
-function getAvailablePositionsForClub(club) {
-  return POSITION_ORDER.filter((position) => (
-    availablePlayers.some((player) => player.club === club && player.position === position && canSelectPlayer(player))
-  ));
-}
-
 function getEligibleClubsForSpin() {
   return CLUBS.filter((club) => {
     const hasCoachOption = !teamCoach && Boolean(availableCoachByClub[club]);
-    const hasPlayerOption = getAvailablePositionsForClub(club).length > 0;
+    const hasPlayerOption = getAvailablePlayersForClub(club).some((player) => canSelectPlayer(player));
     return hasCoachOption || hasPlayerOption;
   });
-}
-
-function getClubHeading() {
-  if (!currentClub) {
-    return 'Press Spin';
-  }
-
-  if (currentPosition) {
-    return `${currentClub} • ${POSITION_LABELS[currentPosition]}`;
-  }
-
-  return `${currentClub} • Coach Window`;
 }
 
 function renderPlayersForClub() {
   playerContainer.innerHTML = '';
 
   if (!currentClub) {
-    playerContainer.innerHTML = '<p class="draft-tip">Press SPIN TEAM + POSITION to reveal your next option.</p>';
+    playerContainer.innerHTML = '<p class="draft-tip">Press SPIN TEAM to reveal your next club.</p>';
     return;
   }
 
-  const clubPlayers = currentPosition
-    ? getAvailablePlayersForClub(currentClub).filter((player) => player.position === currentPosition)
-    : [];
+  const clubPlayers = getAvailablePlayersForClub(currentClub);
   const clubCoach = teamCoach ? null : (availableCoachByClub[currentClub] || null);
 
   if (!clubPlayers.length && !clubCoach) {
@@ -861,16 +841,10 @@ function finishClubSpin(chosenClub) {
   legendaryAvailableThisSpin = false;
 
   if (chosenClub === 'Chequers' && !legendarySelected && !isPositionFull('S') && Math.random() < 0.01) {
-    currentPosition = 'S';
     legendaryAvailableThisSpin = true;
-  } else {
-    const positionOptions = getAvailablePositionsForClub(chosenClub);
-    currentPosition = positionOptions.length
-      ? positionOptions[Math.floor(Math.random() * positionOptions.length)]
-      : null;
   }
 
-  clubName.textContent = getClubHeading();
+  clubName.textContent = chosenClub;
   animateClubReveal();
   updateStatusPanels();
   renderPlayersForClub();
@@ -928,7 +902,7 @@ function advanceToNextClub() {
   currentClub = null;
   currentPosition = null;
   legendaryAvailableThisSpin = false;
-  playerContainer.innerHTML = '<p class="draft-tip">Rolling the next team and position...</p>';
+  playerContainer.innerHTML = '<p class="draft-tip">Rolling the next team...</p>';
   window.setTimeout(() => {
     startClubSpin();
   }, 300);
@@ -941,7 +915,7 @@ function updateRerollButton() {
 
   const canUseReroll = !positionRerollUsed && Boolean(currentClub) && !isSpinning && !isDraftComplete && !isTeamComplete();
   rerollButton.disabled = !canUseReroll;
-  rerollButton.textContent = positionRerollUsed ? '🔄 POSITION REROLL USED' : '🔄 REROLL POSITION (1 LEFT)';
+  rerollButton.textContent = positionRerollUsed ? '🔄 TEAM REROLL USED' : '🔄 REROLL TEAM (1 LEFT)';
 }
 
 function handlePlayerSelection(player) {
@@ -1055,22 +1029,15 @@ function handleRerollClick() {
     return;
   }
 
-  const availablePositions = getAvailablePositionsForClub(currentClub);
-  if (!availablePositions.length) {
-    return;
-  }
-
   positionRerollUsed = true;
-  const alternatives = availablePositions.filter((position) => position !== currentPosition);
-  const nextPositionPool = alternatives.length ? alternatives : availablePositions;
-  currentPosition = nextPositionPool[Math.floor(Math.random() * nextPositionPool.length)];
-  clubName.textContent = getClubHeading();
-  animateClubReveal();
-  playerContainer.innerHTML = '<p class="draft-tip">Rerolling position...</p>';
+  currentClub = null;
+  currentPosition = null;
+  legendaryAvailableThisSpin = false;
+  playerContainer.innerHTML = '<p class="draft-tip">Rerolling team...</p>';
   updateRerollButton();
 
   window.setTimeout(() => {
-    renderPlayersForClub();
+    startClubSpin();
   }, 250);
 }
 
@@ -1093,7 +1060,7 @@ rerollButton = document.createElement('button');
 rerollButton.type = 'button';
 rerollButton.id = 'rerollButton';
 rerollButton.className = 'reroll-button';
-rerollButton.textContent = '🔄 REROLL POSITION (1 LEFT)';
+rerollButton.textContent = '🔄 REROLL TEAM (1 LEFT)';
 rerollButton.addEventListener('click', handleRerollClick);
 spinButton.parentElement.insertBefore(rerollButton, spinButton);
 
