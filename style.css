@@ -21,8 +21,9 @@ body {
 
 body {
   margin: 0;
-  height: 100vh;
-  max-height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
   overflow: hidden;
   display: grid;
   grid-template-rows: 90px minmax(0, 1fr) 54px;
@@ -55,6 +56,8 @@ body::before {
 
 .popup-card {
   width: min(620px, 100%);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
   padding: 1.3rem 1.4rem;
   border-radius: 24px;
   background: linear-gradient(145deg, rgba(16,24,38,0.98), rgba(20,31,48,0.96));
@@ -110,7 +113,7 @@ header p {
 .team-panel {
   padding: 1rem 1.1rem 1.1rem;
   display: grid;
-  grid-template-rows: auto auto 1fr auto;
+  grid-template-rows: auto auto 1fr auto auto;
   gap: 0.8rem;
   overflow: hidden;
 }
@@ -165,6 +168,38 @@ header p {
 .court-shell {
   min-height: 0;
   padding: 0.15rem 0 0.05rem;
+}
+
+.coach-section {
+  padding: 0.75rem;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.coach-section h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+#coachSelectionValue {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.coach-section__stats {
+  margin-top: 0.35rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.coach-section__stats p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
 }
 
 .volleyball-court {
@@ -468,6 +503,20 @@ header p {
   font-size: 0.92rem;
 }
 
+.coach-card {
+  width: 100%;
+  min-height: 98px;
+  height: auto;
+  border-color: rgba(255,203,99,0.34);
+  background: linear-gradient(145deg, rgba(50,39,14,0.78), rgba(31,25,12,0.72));
+  grid-column: 1 / -1;
+}
+
+.coach-card:hover {
+  border-color: rgba(255,203,99,0.58);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.32);
+}
+
 .app-footer-bar {
   display: flex;
   align-items: center;
@@ -530,17 +579,25 @@ footer {
 
 @media (max-width: 700px) {
   body {
-    grid-template-rows: 84px minmax(0, 1fr) 62px;
+    min-height: 100dvh;
+    height: auto;
+    max-height: none;
+    overflow-y: auto;
+    grid-template-rows: auto auto auto;
   }
 
   .container {
     width: min(100%, calc(100vw - 1rem));
     gap: 0.9rem;
+    height: auto;
+    min-height: 0;
+    padding-bottom: 0.75rem;
   }
 
   .team-panel,
   .draft-panel {
     border-radius: 18px;
+    overflow: visible;
   }
 
   .court-slot {
@@ -563,5 +620,18 @@ footer {
     flex-direction: column;
     gap: 0.35rem;
     padding: 0 0.75rem 0.45rem;
+  }
+
+  .popup-overlay {
+    align-items: flex-start;
+    padding: 0.6rem;
+    overflow-y: auto;
+  }
+
+  .popup-card {
+    width: 100%;
+    max-height: none;
+    border-radius: 16px;
+    padding: 1rem;
   }
 }

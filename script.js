@@ -16,6 +16,16 @@ const POSITION_LABELS = {
 
 const POSITION_ORDER = ['S', 'PH', 'MB', 'OPP', 'L'];
 
+const COACHES = {
+  Reds: { club: 'Reds', name: 'Jon Uriarte', rank: 1 },
+  Chequers: { club: 'Chequers', name: 'Gavin Lewis', rank: 2 },
+  Balcatta: { club: 'Balcatta', name: 'Conrad Hill', rank: 3 },
+  'Southern Cross': { club: 'Southern Cross', name: 'Ethan Dodd', rank: 4 },
+  'Northern Stars': { club: 'Northern Stars', name: 'Steve Petsos', rank: 5 },
+  Rossmoyne: { club: 'Rossmoyne', name: 'Jordy Linton', rank: 6 },
+  Apex: { club: 'Apex', name: 'Jheysson Rojas', rank: 7 }
+};
+
 const spinButton = document.getElementById('spinButton');
 const clubName = document.getElementById('clubName');
 const playerContainer = document.getElementById('playerContainer');
@@ -49,6 +59,11 @@ let spinLocked = false;
 let rerollButton = null;
 let progressValue = null;
 let spinTimer = null;
+let teamCoach = null;
+let availableCoachByClub = {};
+let coachSelectionValue = null;
+let coachProjectionValue = null;
+let coachOverallValue = null;
 
 function shuffleArray(items) {
   const copy = [...items];
@@ -63,10 +78,9 @@ function shuffleArray(items) {
 
 function buildDraftQueue() {
   const clubs = [...new Set(players.map((player) => player.club))];
-  const roundOne = shuffleArray(clubs);
-  const roundTwo = shuffleArray(clubs);
+  const rounds = Array.from({ length: 3 }, () => shuffleArray(clubs));
 
-  return [...roundOne, ...roundTwo];
+  return rounds.flat();
 }
 
 function getPositionCount(position) {
@@ -98,7 +112,8 @@ function canSelectPlayer(player) {
 }
 
 function isTeamComplete() {
-  return POSITION_ORDER.every((position) => getPositionCount(position) === POSITION_RULES[position].max);
+  const playersComplete = POSITION_ORDER.every((position) => getPositionCount(position) === POSITION_RULES[position].max);
+  return playersComplete && Boolean(teamCoach);
 }
 
 function getTeamPlayerForSlot(position, slotIndex = 0) {
@@ -122,15 +137,17 @@ function getTeamPlayerForSlot(position, slotIndex = 0) {
 }
 
 function getDraftedCount() {
-  return [team.S, ...team.PH, ...team.MB, team.OPP, team.L].filter(Boolean).length;
+  const playerCount = [team.S, ...team.PH, ...team.MB, team.OPP, team.L].filter(Boolean).length;
+  return playerCount + (teamCoach ? 1 : 0);
 }
 
 function updateStatusPanels() {
   if (progressValue) {
-    progressValue.textContent = `${getDraftedCount()} / 7 Selected`;
+    progressValue.textContent = `${getDraftedCount()} / 8 Selected`;
   }
 
   renderCourtSlots();
+  renderCoachPanel();
   renderSpinButton();
   updateRerollButton();
 }
@@ -148,7 +165,7 @@ function buildStatusPanel() {
   statusPanel.innerHTML = `
     <div class="draft-status__item">
       <h3>Draft Progress</h3>
-      <p id="draftProgressValue">0 / 7 Selected</p>
+      <p id="draftProgressValue">0 / 8 Selected</p>
     </div>
   `;
 
@@ -188,6 +205,81 @@ function buildCourtLayout() {
 
   courtShell.appendChild(court);
   teamPanel.appendChild(courtShell);
+}
+
+function buildCoachPanel() {
+  const teamPanel = document.querySelector('.team-panel');
+
+  if (!teamPanel) {
+    return;
+  }
+
+  const coachSection = document.createElement('section');
+  coachSection.className = 'coach-section';
+  coachSection.innerHTML = `
+    <h3>Coach</h3>
+    <p id="coachSelectionValue">No coach selected</p>
+    <div class="coach-section__stats">
+      <p id="coachProjectionValue">Projected Record: --</p>
+      <p id="coachOverallValue">Overall Rating: --</p>
+    </div>
+  `;
+
+  teamPanel.appendChild(coachSection);
+  coachSelectionValue = document.getElementById('coachSelectionValue');
+  coachProjectionValue = document.getElementById('coachProjectionValue');
+  coachOverallValue = document.getElementById('coachOverallValue');
+}
+
+function getCoachBonus() {
+  if (!teamCoach) {
+    return 0;
+  }
+
+  if (teamCoach.rank === 1) {
+    return 5;
+  }
+
+  if (teamCoach.rank === 2) {
+    return 4;
+  }
+
+  if (teamCoach.rank === 3) {
+    return 3;
+  }
+
+  if (teamCoach.rank === 4) {
+    return 2;
+  }
+
+  if (teamCoach.rank === 5) {
+    return 1;
+  }
+
+  if (teamCoach.rank === 6) {
+    return 0.5;
+  }
+
+  return 0;
+}
+
+function renderCoachPanel() {
+  if (!coachSelectionValue || !coachProjectionValue || !coachOverallValue) {
+    return;
+  }
+
+  if (!teamCoach) {
+    coachSelectionValue.textContent = 'No coach selected';
+    coachProjectionValue.textContent = 'Projected Record: --';
+    coachOverallValue.textContent = `Overall Rating: ${calculateTeamScore().toFixed(1)}`;
+    return;
+  }
+
+  const score = calculateTeamScore();
+  const band = getEvaluationBand(score);
+  coachSelectionValue.textContent = `${teamCoach.name} (${teamCoach.club})`;
+  coachProjectionValue.textContent = `Projected Record: ${band.record}`;
+  coachOverallValue.textContent = `Overall Rating: ${score.toFixed(1)}`;
 }
 
 function renderCourtSlots() {
@@ -301,7 +393,8 @@ function calculateTeamScore() {
   const weightedOverall = getWeightedOverall();
   const chemistryBonus = getChemistryBonus();
   const comboEffects = getComboEffects(getRosterPlayers());
-  return Number(Math.max(40, Math.min(115, weightedOverall + chemistryBonus + comboEffects.totalDelta)).toFixed(1));
+  const coachBonus = getCoachBonus();
+  return Number(Math.max(40, Math.min(115, weightedOverall + chemistryBonus + comboEffects.totalDelta + coachBonus)).toFixed(1));
 }
 
 function getEvaluationBand(score) {
@@ -384,43 +477,24 @@ function getStrengthsAndWeaknesses() {
 function renderEvaluationScreen() {
   const score = calculateTeamScore();
   const band = getEvaluationBand(score);
-  const { strengths } = getStrengthsAndWeaknesses();
   const roster = getRosterPlayers();
-  const comboEffects = getComboEffects(roster);
-  const bestPick = [...roster].sort((left, right) => (right.overall || 0) - (left.overall || 0))[0];
-  const injuryLines = [
-    'The training staff said the team was “just tired”, which is a very polite way to say the libero forgot how to land.',
-    'One of the middles got so excited they tried to spike the scoreboard and missed badly.',
-    'The opposite got a mysterious ankle tweak that only appeared after a dramatic celebration.',
-    'The setter was brilliant until the coffee wore off and the whole offence got suspiciously optimistic.'
+  const teamSummaryLines = [
+    ...roster.map((player) => `${player.name} — ${POSITION_LABELS[player.position]}`),
+    teamCoach ? `${teamCoach.name} — Coach` : 'No coach drafted'
   ];
-  const lossLines = [
-    'The squad came out firing, then promptly discovered that confidence is not a real defensive system.',
-    'The match was lost in the second set when everyone tried to be the hero at once.',
-    'The team played with heart, but the heart was clearly on a different court.',
-    'They had talent, but the chemistry looked like it was still waiting for the bus.'
-  ];
-  const comment = `${bestPick?.name || 'The star'} was the only one who looked like they had a plan, and ${injuryLines[Math.floor(Math.random() * injuryLines.length)]} ${lossLines[Math.floor(Math.random() * lossLines.length)]}`;
+  const gamesWon = Number.parseInt(band.record.split('–')[0], 10) || 0;
 
   const overlay = document.createElement('div');
   overlay.className = 'popup-overlay';
   overlay.innerHTML = `
     <div class="popup-card" style="font-family:Segoe UI, Arial, sans-serif;">
       <div style="font-size:0.95rem;letter-spacing:0.24em;text-transform:uppercase;color:#4fb0ff;margin-bottom:0.65rem;">TEAM COMPLETE</div>
-      <div style="font-size:1.2rem;font-weight:700;margin-bottom:0.95rem;">[ Volleyball Court ]</div>
+      <div style="font-size:1.2rem;font-weight:700;margin-bottom:0.95rem;">Season Results</div>
 
       <div style="display:grid;gap:0.45rem;text-align:left;margin-bottom:0.9rem;">
         <div style="display:flex;justify-content:space-between;gap:1rem;padding:0.55rem 0.7rem;border-bottom:1px solid rgba(255,255,255,0.08);">
-          <span style="color:#95a4b8;">Projected Record</span>
-          <strong>${band.record}</strong>
-        </div>
-        <div style="display:flex;justify-content:space-between;gap:1rem;padding:0.55rem 0.7rem;border-bottom:1px solid rgba(255,255,255,0.08);">
           <span style="color:#95a4b8;">Games Won</span>
-          <strong>15 / 18</strong>
-        </div>
-        <div style="display:flex;justify-content:space-between;gap:1rem;padding:0.55rem 0.7rem;border-bottom:1px solid rgba(255,255,255,0.08);">
-          <span style="color:#95a4b8;">Overall</span>
-          <strong>${score.toFixed(1)}</strong>
+          <strong>${gamesWon} / 18</strong>
         </div>
         <div style="display:flex;justify-content:space-between;gap:1rem;padding:0.55rem 0.7rem;border-bottom:1px solid rgba(255,255,255,0.08);">
           <span style="color:#95a4b8;">Grade</span>
@@ -429,29 +503,10 @@ function renderEvaluationScreen() {
       </div>
 
       <div style="text-align:left;margin-bottom:0.95rem;">
-        <div style="font-size:0.82rem;letter-spacing:0.2em;text-transform:uppercase;color:#4fb0ff;margin-bottom:0.45rem;">Strengths</div>
-        <div style="display:grid;gap:0.35rem;">
-          ${strengths.slice(0, 3).map((item) => `<div style="padding:0.45rem 0.6rem;border-radius:10px;background:rgba(255,255,255,0.03);">${item}</div>`).join('')}
-        </div>
-      </div>
-
-      <div style="text-align:left;margin-bottom:0.95rem;">
-        <div style="font-size:0.82rem;letter-spacing:0.2em;text-transform:uppercase;color:#4fb0ff;margin-bottom:0.45rem;">Combo Impact</div>
-        <div style="display:grid;gap:0.35rem;">
-          ${comboEffects.triggered.length ? comboEffects.triggered.map((item) => `<div style="padding:0.45rem 0.6rem;border-radius:10px;background:rgba(255,255,255,0.03);">${item}</div>`).join('') : '<div style="padding:0.45rem 0.6rem;border-radius:10px;background:rgba(255,255,255,0.03);">No special combinations landed.</div>'}
-        </div>
-      </div>
-
-      <div style="text-align:left;margin-bottom:0.95rem;">
         <div style="font-size:0.82rem;letter-spacing:0.2em;text-transform:uppercase;color:#4fb0ff;margin-bottom:0.45rem;">Your Team</div>
         <div style="display:grid;gap:0.35rem;">
-          ${roster.map((player) => `<div style="padding:0.45rem 0.6rem;border-radius:10px;background:rgba(255,255,255,0.03);">${player.name} — ${POSITION_LABELS[player.position]}</div>`).join('')}
+          ${teamSummaryLines.map((line) => `<div style="padding:0.45rem 0.6rem;border-radius:10px;background:rgba(255,255,255,0.03);">${line}</div>`).join('')}
         </div>
-      </div>
-
-      <div style="text-align:left;margin-bottom:0.95rem;padding:0.7rem 0.8rem;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);">
-        <div style="font-size:0.82rem;letter-spacing:0.2em;text-transform:uppercase;color:#4fb0ff;margin-bottom:0.35rem;">Post-Game Comment</div>
-        <div style="line-height:1.45;">${comment}</div>
       </div>
 
       <a class="play-again-btn" href="index.html" style="width:100%;max-width:100%;">PLAY AGAIN</a>
@@ -502,8 +557,9 @@ function renderPlayersForClub() {
   }
 
   const clubPlayers = getAvailablePlayersForClub(currentClub);
+  const clubCoach = teamCoach ? null : (availableCoachByClub[currentClub] || null);
 
-  if (!clubPlayers.length) {
+  if (!clubPlayers.length && !clubCoach) {
     playerContainer.innerHTML = '<p class="draft-tip">No available players remain for this club.</p>';
     return;
   }
@@ -534,6 +590,25 @@ function renderPlayersForClub() {
     card.classList.add(getDelayClass(index));
     fragment.appendChild(card);
   });
+
+  if (clubCoach) {
+    const coachCard = document.createElement('article');
+    coachCard.className = 'player-card coach-card';
+
+    const coachButton = document.createElement('button');
+    coachButton.type = 'button';
+    coachButton.className = 'player-select-button';
+    coachButton.innerHTML = `
+      <h3>${clubCoach.name}</h3>
+      <p>Coach • ${clubCoach.club}</p>
+      <p>Head Coach</p>
+    `;
+
+    coachButton.addEventListener('click', () => handleCoachSelection(clubCoach));
+    coachCard.appendChild(coachButton);
+    coachCard.classList.add(getDelayClass(clubPlayers.length));
+    fragment.appendChild(coachCard);
+  }
 
   playerContainer.appendChild(fragment);
 
@@ -596,13 +671,22 @@ function startClubSpin() {
   }
 
   if (!draftQueue.length) {
-    isDraftComplete = true;
-    currentClub = null;
-    clubName.textContent = 'Draft Complete';
-    animateClubReveal();
-    playerContainer.innerHTML = '<p class="draft-tip">No clubs remain.</p>';
-    updateStatusPanels();
-    return;
+    if (!teamCoach) {
+      const coachClubs = Object.keys(availableCoachByClub).filter((club) => Boolean(availableCoachByClub[club]));
+      if (coachClubs.length) {
+        draftQueue = shuffleArray(coachClubs);
+      }
+    }
+
+    if (!draftQueue.length) {
+      isDraftComplete = true;
+      currentClub = null;
+      clubName.textContent = 'Draft Complete';
+      animateClubReveal();
+      playerContainer.innerHTML = '<p class="draft-tip">No clubs remain.</p>';
+      updateStatusPanels();
+      return;
+    }
   }
 
   const chosenClub = draftQueue.shift();
@@ -680,6 +764,30 @@ function handlePlayerSelection(player) {
   }, 250);
 }
 
+function handleCoachSelection(coach) {
+  if (teamCoach || !currentClub || coach.club !== currentClub || !availableCoachByClub[currentClub]) {
+    return;
+  }
+
+  teamCoach = coach;
+  availableCoachByClub[coach.club] = null;
+  currentClub = null;
+  updateStatusPanels();
+  renderPlayersForClub();
+
+  if (isTeamComplete()) {
+    isDraftComplete = true;
+    clubName.textContent = 'Team Evaluation';
+    animateClubReveal();
+    renderEvaluationScreen();
+    return;
+  }
+
+  window.setTimeout(() => {
+    advanceToNextClub();
+  }, 250);
+}
+
 function startSeasonSimulation() {
   if (isDraftComplete || isTeamComplete()) {
     renderEvaluationScreen();
@@ -728,9 +836,13 @@ spinButton.addEventListener('click', handleSpinButtonClick);
 
 draftQueue = buildDraftQueue();
 availablePlayers = players.map((player) => ({ ...player }));
+availableCoachByClub = Object.fromEntries(
+  Object.entries(COACHES).map(([club, coach]) => [club, { ...coach }])
+);
 
 buildStatusPanel();
 buildCourtLayout();
+buildCoachPanel();
 
 Object.values(teamSlots).forEach((slot) => {
   slot.classList.add('team-slot');
@@ -742,7 +854,7 @@ rerollButton.id = 'rerollButton';
 rerollButton.className = 'reroll-button';
 rerollButton.textContent = '🔄 REROLL (1 LEFT)';
 rerollButton.addEventListener('click', handleRerollClick);
-mainContainer.insertBefore(rerollButton, spinButton);
+spinButton.parentElement.insertBefore(rerollButton, spinButton);
 
 renderCourtSlots();
 updateStatusPanels();
